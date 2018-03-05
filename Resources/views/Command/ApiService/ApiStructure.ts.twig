@@ -1,0 +1,21 @@
+import { {% spaceless %}
+{% for bundle_name, bundle_entites in used_other_bundle_entities %}{% for entity_name in bundle_entites %}{% if entities[bundle_name][entity_name] is defined %}Entity{{ entity_name }}, {% endif %}{% endfor %}{% endfor %}
+{% for name, properties in entities[bundle_ns] %}Entity{{ name }}{{ loop.last ? '' : ', ' }}{% endfor %}
+{% endspaceless %} } from './{{ api_class_file_prefix }}-bundle-entities';
+
+{% for name, route in routes %}
+export interface ApiV1Structure{{ route['name_pascal_cased'] }} {
+  status: string;
+  data: {
+{% if route['api_structure']['fields'] | length > 0 %}
+{% for field in route['api_structure']['fields'] %}
+    {{ field.name }}: {{ field.type | raw }},
+{% endfor %}{% endif %}  }{#
+  constructor(dataJson) {
+    this.status = dataJson.status;
+    this.data = dataJson.data;
+  }#}
+
+}
+
+{% endfor %}

@@ -1,0 +1,51 @@
+{% macro class_entity(name, properties) %}
+export class Entity{{ name }} extends AbstractEntity {
+
+{% for property, type in properties %}
+  {{ property }}?: {{ type | raw }};
+{% endfor %}
+
+  init(dataJson) {
+{% for property, type in properties %}{% if type == 'Date' %}
+    this.{{ property }} = new Date(dataJson.{{ property }});{% else %}
+    this.{{ property }} = dataJson.{{ property }};{% endif %}
+
+{% endfor %}  }
+}
+{% endmacro %}
+{% macro interface_entity(name, properties) %}
+export interface Entity{{ name }} {
+{% for property, type in properties %}
+  {{ property }}?: {{ type | raw }};
+{% endfor %}
+}
+{% endmacro %}
+{% import _self as _s %}
+export class JsonTrans {
+
+}
+
+export interface JsonDynamicOptions {
+
+}
+{#
+abstract class AbstractEntity {
+  constructor(dataJson) {
+    this.init(dataJson);
+  }
+
+  abstract init(dataJson);
+}
+#}
+
+/* Entity from other bundles */
+{% for bundle_name, bundle_entites in used_other_bundle_entities %}{% for entity_name in bundle_entites %}{% if entities[bundle_name][entity_name] is defined %}
+{{ _s.interface_entity(entity_name, entities[bundle_name][entity_name]) }}
+{% else %}
+// @TODO Missing {{ bundle_name }}.{{ entity_name }}
+{% endif %}{% endfor %}{% endfor %}
+
+/* Entity from the same bundles */
+{% for name, properties in entities[bundle_ns] %}
+{{ _s.interface_entity(name, properties) }}
+{% endfor %}

@@ -1,0 +1,39 @@
+import { Injectable } from '@angular/core';
+{% if has_post_or_put %}import { URLSearchParams } from '@angular/http';
+{% endif %}import { Observable } from 'rxjs/Observable';
+import 'rxjs/Rx';
+import { BaseApiV1Service } from '../base-api-v1-service';
+import { {% for name, route in routes %}ApiV1Structure{{ route['name_pascal_cased'] }}{{ loop.last ? '' : ', ' }}{% endfor %} } from './{{ api_service_class_file_prefix }}-api-v1-structure';
+
+@Injectable()
+export class {{ api_service_class_prefix }}ApiV1Service extends BaseApiV1Service {
+
+{% for name, route in routes %}
+  static readonly URL_{{ name | upper }}: string = 'https://api.360img.net{{ route.pathname }}';
+{% endfor %}
+{% for name, route in routes %}
+  {% if route['method'] == 'GET' %}
+
+  get{{ route['name_pascal_cased'] }}({{ route['route_parameters_as_function_parameters'] | join(', ') }}): Observable<ApiV1Structure{{ route['name_pascal_cased'] }}> {
+    {% spaceless %}let url = {{ api_service_class_prefix }}ApiV1Service.URL_{{ name | upper }}{% for param in route['route_parameters'] %}.replace('{{ '{' ~ param ~ '}' }}', {{ param }}){% endfor %};{% endspaceless %}
+
+    return this.newGetRequestMap(url);
+  }
+  {% elseif route['method'] == 'POST' %}
+
+  post{{ route['name_pascal_cased'] }}(postBody: URLSearchParams{% if route['route_parameters_as_function_parameters'] | length > 0 %}, {% endif %}{{ route['route_parameters_as_function_parameters'] | join(', ') }}): Observable<ApiV1Structure{{ route['name_pascal_cased'] }}> {
+    {% spaceless %}let url = {{ api_service_class_prefix }}ApiV1Service.URL_{{ name | upper }}{% for param in route['route_parameters'] %}.replace('{{ '{' ~ param ~ '}' }}', {{ param }}){% endfor %};{% endspaceless %}
+
+    return this.newPostRequestMap(url, postBody);
+  }
+  {% elseif route['method'] == 'PUT' %}
+
+  put{{ route['name_pascal_cased'] }}(postBody: URLSearchParams{% if route['route_parameters_as_function_parameters'] | length > 0 %}, {% endif %}{{ route['route_parameters_as_function_parameters'] | join(', ') }}): Observable<ApiV1Structure{{ route['name_pascal_cased'] }}> {
+    {% spaceless %}let url = {{ api_service_class_prefix }}ApiV1Service.URL_{{ name | upper }}{% for param in route['route_parameters'] %}.replace('{{ '{' ~ param ~ '}' }}', {{ param }}){% endfor %};{% endspaceless %}
+
+    return this.newPutRequestMap(url, postBody);
+  }
+  {% endif %}
+{% endfor %}
+
+}

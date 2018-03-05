@@ -1,0 +1,22 @@
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class CountryService {
+
+  public get(locale: string): { [code: string]: string; } {
+    if (-1 !== CountryService.LOCALES.indexOf(locale)) {
+      return CountryService.COUNTRIES[locale];
+    } else {
+      return CountryService.COUNTRIES['en'];
+    }
+  }
+
+  public getOne(locale: string, code: string): string {
+    return this.get(locale)[code];
+  }
+
+  protected static readonly LOCALES: Array<string> = {{ locales | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) | replace({"\\t": "  ", "        ": "      "}) | replace({"];": "  ];", "};": "  };"}) | raw }};
+
+  protected static readonly COUNTRIES: { [locale: string]: { [code: string]: string } } = {{ countries | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) | replace({"\\t": "  ", "        ": "      "}) | replace({"];": "  ];", "};": "  };"}) | raw }};
+
+}

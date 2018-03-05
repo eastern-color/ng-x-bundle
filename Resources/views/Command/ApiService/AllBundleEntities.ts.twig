@@ -1,0 +1,21 @@
+{% macro interface_entity(name, properties) %}
+export interface Entity{{ name }} {
+{% for property, type in properties %}
+  {{ property }}?: {{ type | raw }};
+{% endfor %}
+}
+{% endmacro %}
+{% import _self as _s %}
+export interface JsonTrans {
+  [lang: string]: any,
+}
+
+export interface JsonDynamicOptions {
+  [name: string]: any,
+}
+
+{% for bundle_ns, bundle_entities in entities %}
+{% for name, properties in bundle_entities %}
+{{ _s.interface_entity(name, properties) }}
+{% endfor %}
+{% endfor %}

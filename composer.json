@@ -1,0 +1,29 @@
+{
+    "name": "eastern-color/ng-x-bundle",
+    "description": "",
+    "keywords": ["Angular","AngularJs","ng","ngx","routing"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Peter",
+            "email": "peter.ho@360img.net",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "EasternColor\\NgXBundle\\": ""
+        }
+    },
+    "require": {
+        "php": ">=5.5.9",
+        "danielstjules/stringy": "^3.1",
+        "doctrine/common": "^2.5",
+        "jms/serializer": "^2.0"
+    },
+    "require-dev": {
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

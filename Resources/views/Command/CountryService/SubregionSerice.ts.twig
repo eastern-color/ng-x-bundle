@@ -1,0 +1,28 @@
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class SubregionService {
+
+  public get(locale: string, country_code: string): { [code: string]: string; } {
+    let subregions = {};
+    if (-1 !== SubregionService.LOCALES.indexOf(locale)) {
+      subregions = SubregionService.SUBREGIONS[locale];
+    } else {
+      subregions = SubregionService.SUBREGIONS['en'];
+    }
+    if (subregions[country_code]) {
+      return subregions[country_code];
+    } else {
+      return {};
+    }
+  }
+
+  public getOne(locale: string, country_code: string, code: string): string {
+    return this.get(locale, country_code)[code];
+  }
+
+  protected static readonly LOCALES: Array<string> = {{ locales | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) | replace({"\\t": "  ", "        ": "      "}) | replace({"];": "  ];", "};": "  };"}) | raw }};
+
+  protected static readonly SUBREGIONS: { [locale: string]: { [country_code: string]: { [code: string]: string } } } = {{ subregions | json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) | replace({"\\t": "  ", "        ": "      "}) | replace({"];": "  ];", "};": "  };"}) | raw }};
+
+}

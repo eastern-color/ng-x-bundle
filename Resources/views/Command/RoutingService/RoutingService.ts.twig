@@ -1,0 +1,110 @@
+{% macro ts_class_route(route) %}
+    "{{ route.id }}": new Route(
+      {{ route.tokens | json_encode | raw }},
+      {{ route.hosttokens | json_encode | raw }},
+      {{ route.defaults | json_encode | raw }},
+      {{ route.requirements | json_encode | raw }}
+    ),{% endmacro %}
+{% macro ts_type_param_route(route) %}
+{% spaceless %}
+  {% set vars = [] %}
+  {% for token in route.tokens %}
+    {% if 'variable' == token[0] %}
+      {% set vars = vars | merge([ token[3] ~ ((token[3] == '_locale' or token[3] == 'projectslug') ? '?' : '') ~ ': string' ]) %}
+    {% endif %}
+  {% endfor %}
+  {{ '{ ' }}{{ vars | join(', ') }}{{ ' }' }}
+{% endspaceless %}
+{% endmacro %}
+{% import _self as _s %}
+import { Injectable } from '@angular/core';
+import { SessionService } from './session-service';
+
+interface NameValuePair {
+  [name: string]: string;
+}
+
+class Route {
+  protected tokens: Array<Token> = [];
+  protected hosttokens: Array<Token> = [];
+
+  constructor(
+    protected tokensSrc: Array<Array<string>>,
+    protected hosttokensSrc: Array<Array<string>>,
+    public defaults: { [name: string]: string },
+    public requirements: { [name: string]: string },
+  ) {
+    this.buildToken(this.tokensSrc, this.tokens);
+    this.buildToken(this.hosttokensSrc, this.hosttokens);
+  }
+
+  protected buildToken(src, dest) {
+    src.forEach((item: Array<string>) => {
+      if (item[0] == 'text') {
+        dest.unshift(new TokenText(item[1]));
+      } else {
+        dest.unshift(new TokenVariable(item[1], item[2], item[3]));
+      }
+    });
+  }
+
+  generate(params: NameValuePair): string {
+    let pathParts = [];
+    this.tokens.forEach((item: Token) => {
+      pathParts.push(item.get(this, params));
+    });
+    return pathParts.join('');
+  }
+}
+
+interface Token {
+  get(route: Route, param: NameValuePair): string;
+}
+
+class TokenText implements Token {
+  constructor(protected text: string) { }
+  get(route: Route, param: NameValuePair): string { return this.text; }
+}
+
+class TokenVariable implements Token {
+  constructor(protected prefix: string, protected regex: string, protected name: string) { }
+  get(route: Route, param: NameValuePair): string {
+    let p = '';
+    if (param[this.name]) {
+      p = param[this.name];
+    } else if (route.defaults[this.name]) {
+      p = param[this.name];
+    }
+    return this.prefix + p;
+  }
+}
+
+@Injectable()
+export class RoutingService {
+
+  public constructor(private sessionService: SessionService,) { }
+
+  public generate(route: string, params: NameValuePair): string {
+    return RoutingService.ROUTES[route].generate(this.fillParamsFromSession(params));
+  }
+{% for route in routes %}
+
+  public {{ route.id }}(params: {{ _s.ts_type_param_route(route) }}): string {
+    return RoutingService.ROUTES['{{ route.id }}'].generate(this.fillParamsFromSession(params));
+  }
+{% endfor %}
+
+  protected fillParamsFromSession(params)
+  {
+      if (!params._locale) params._locale = this.sessionService.getLocale();
+      if (!params.projectslug) params.projectslug = this.sessionService.getSite().projectslug;
+      return params;
+  }
+
+  protected static readonly ROUTES: { [name: string]: Route } = {
+{% for route in routes %}
+{{ _s.ts_class_route(route) }}
+{% endfor %}
+  };
+
+}

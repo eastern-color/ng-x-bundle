@@ -1,0 +1,18 @@
+import { {% for name in used_entities %}{{ name }}{{ loop.last ? '' : ', ' }}{% endfor %} } from './bundle-entities';
+
+{% for name, route in routes %}
+export interface ApiV1Structure{{ route['name_pascal_cased'] }} {
+  status: string;
+  data: {
+{% if route['api_structure']['fields'] | length > 0 %}
+{% for field in route['api_structure']['fields'] %}
+    {{ field.name }}: {{ field.type | raw }},
+{% endfor %}{% endif %}  }{#
+  constructor(dataJson) {
+    this.status = dataJson.status;
+    this.data = dataJson.data;
+  }#}
+
+}
+
+{% endfor %}
