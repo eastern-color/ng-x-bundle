@@ -1,7 +1,7 @@
 {
     "name": "eastern-color/ng-x-bundle",
-    "description": "",
-    "keywords": ["Angular","AngularJs","ng","ngx","routing"],
+    "description": "A set of tools to generate files for Angular2+",
+    "keywords": ["Angular","AngularJs","ng","ngx","routing","ionic"],
     "license": "MIT",
     "authors": [
         {
