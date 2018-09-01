@@ -19,7 +19,7 @@
         "php": ">=5.5.9",
         "danielstjules/stringy": "^3.1",
         "doctrine/common": "^2.5",
-        "jms/serializer": "^2.0"
+        "jms/serializer": "^2.4"
     },
     "require-dev": {
     },
